@@ -1,0 +1,11 @@
+{{#if toastMessage}}
+  <div class="toast" style="position: absolute; top: 0px; right: 0px; z-index: 9999;" data-delay="2000" style="width: 300px;">
+      <div class="toast-header bg-success text-white" style="width: 100%;">
+          <h4 class="mr-auto">Status</h4>
+          <button class="close ml-auto" data-dismiss="toast">&times;</button>
+      </div>
+      <div class="toast-body">
+          <p class="text-success">{{toastMessage}}</p>
+      </div>
+  </div>
+{{/if}}
