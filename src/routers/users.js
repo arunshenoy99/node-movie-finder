@@ -10,9 +10,9 @@ router.post('/users', async (req, res) => {
     try {
         await user.save()
         const token = await user.generateAuthToken()
-        res.cookie('token', token, { expires: new Date(Date.now() + 900000), httpOnly: true}).status(201).redirect('/')
+        res.cookie('token', token, { expires: new Date(Date.now() + 900000), httpOnly: true}).status(201).redirect('/movies')
     } catch (e) {
-        res.status(500).send(e)
+        res.redirect('/?failureToast=true&toastMessage=Failed signup, Please check your data')
     }
 })
 
@@ -20,12 +20,12 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         if (!user) {
-            return res.status(404).send({ error: 'Please check your username or password and try again.' })
+            return res.redirect('/')
         }
         const token = await user.generateAuthToken()
-        res.cookie('token', token, { expires: new Date(Date.now() + 900000), httpOnly: true}).redirect('/')
+        res.cookie('token', token, { expires: new Date(Date.now() + 900000), httpOnly: true}).redirect('/movies')
     } catch (e) {
-        res.status(500).send(e)
+        res.redirect('/?failureToast=true&toastMessage=Failed login')
     }
 })
 

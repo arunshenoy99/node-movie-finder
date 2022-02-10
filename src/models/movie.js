@@ -24,7 +24,7 @@ const movieSchema = new mongoose.Schema({
     },
     public: {
         type: Boolean,
-        default: true
+        default: false
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,

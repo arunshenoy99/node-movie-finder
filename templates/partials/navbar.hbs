@@ -6,15 +6,8 @@
         <a class="navbar-brand" href="/">MovieZ</a> <!-- navbar logo -->
         <div class="collapse navbar-collapse" id="navbar"> <!-- grouping hiddden navabr content when breakpoint occurs -->
             <ul class="navbar-nav mr-auto"><!-- lightweight navbar with dropdown -->
-                <li class="nav-item home-link {{active1}}"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item about-link"><a class="nav-link" data-toggle="modal" data-target="#searchModal">Search</a></li>
-                {{#if loggedIn}}
-                    <li class="nav-item"><a class="nav-link" href="/movies/me">My List</a></li>
-                    <li class="nav-item" onclick="logout();"><a class="nav-link">Logout</a></li>
-                {{else}}
-                    <li class="nav-item"><a class="nav-link" data-toggle="modal" data-target="#signupModal">Join Us</a></li>
-                    <li class="nav-item"><a class="nav-link" data-toggle="modal" data-target="#loginModal">Login</a></li>
-                {{/if}}
+                <li class="nav-item home-link active"><a class="nav-link" href="/home">Home</a></li>
+                <li class="nav-item" onclick="logout();"><a class="nav-link">Logout</a></li>
             </ul>
         </div>
     </div>

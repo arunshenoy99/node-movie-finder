@@ -7,6 +7,7 @@ const bodyParser = require('body-parser')
 require('./db/mongoose')
 const userRouter = require('./routers/users')
 const movieRouter = require('./routers/movies')
+const auth = require('./middleware/auth')
 
 const app = express()
 
@@ -29,14 +30,26 @@ app.use(userRouter)
 app.use(movieRouter)
 
 app.get('', (req, res) => {
-    let loggedIn = false
     if (req.cookies.token) {
-        loggedIn=true
+        return res.redirect('/movies')
     }
-    res.render('index', {
+    res.render('login', {
+        title: 'MovieZ',
+        successToast: req.query.successToast ? req.query.successToast : false,
+        failureToast: req.query.failureToast ? req.query.failureToast : false,
+        toastMessage: req.query.toastMessage
+    })
+})
+
+app.get('/signup', (req, res) => {
+    if (req.cookies.token) {
+        return res.redirect('/movies')
+    }
+    res.render('signup', {
         title: 'MovieZ',
         active1: 'active',
-        loggedIn,
+        successToast: req.query.successToast ? req.query.successToast : false,
+        failureToast: req.query.failureToast ? req.query.failureToast : false,
         toastMessage: req.query.toastMessage
     })
 })

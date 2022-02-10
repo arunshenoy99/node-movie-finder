@@ -2,43 +2,53 @@ const express = require('express')
 
 const Movie = require('../models/movie')
 const auth = require('../middleware/auth')
+const User = require('../models/user')
 
 const router = new express.Router()
 
 router.post('/movies', auth, async (req, res) => {
+    if (req.body.public) {
+        req.body.public = true
+    }
     const movie = new Movie({
         ...req.body,
         owner: req.user._id
     })
     try {
         await movie.save()
-        res.status(201).json({ id: movie.id })
+        res.redirect(`/movies?successToast=true&toastMessage=Added ${req.body.title} to list`)
     } catch (e) {
-        res.status(500).send(e)
+        console.log(e)
+        res.redirect(`/movies?failureToast=true&toastMessage=Failed to add ${req.body.title}`)
     }
 })
 
-router.get('/movies', async (req, res) => {
-    if (!req.query.movie) {
-        return res.status(400).send("Please provide a movie name")
-    }
+router.get('/movies', auth, async (req, res) => {
     try {
-        let loggedIn = false
-        if (req.cookies.token) {
-            loggedIn=true
+        var movie = null
+        if (req.query.movie) {
+            movie = await Movie.getMovieDetails(req.query.movie)
         }
-        const movie = await Movie.getMovieDetails(req.query.movie)
+        await req.user.populate('movies')
         if (!movie) {
-            return res.render('results', {
+            return res.render('movies', {
                 title: req.query.movie,
                 movies: false,
-                loggedIn
+                list: req.user.movies,
+                successToast: req.query.successToast ? req.query.successToast : false,
+                failureToast: req.query.failureToast ? req.query.failureToast : false,
+                toastMessage: req.query.toastMessage,
+                userId: req.user.id
              })
         }
-        res.render('results', {
+        res.render('movies', {
            title: req.query.movie,
            movies: [movie],
-           loggedIn
+           list: req.user.movies,
+           successToast: req.query.successToast ? req.query.successToast : false,
+           failureToast: req.query.failureToast ? req.query.failureToast : false,
+           toastMessage: req.query.toastMessage,
+           userId: req.user.id
         })
     } catch (e) {
         res.status(500).send(e)
@@ -47,37 +57,41 @@ router.get('/movies', async (req, res) => {
 
 router.get('/movies/me', auth, async (req, res) => {
     try {
-        let loggedIn = false
-        if (req.cookies.token) {
-            loggedIn = true
-        }
         await req.user.populate('movies')
-        if (req.user.movies.length == 0) {
-            return res.render('list', {
-                title: req.query.movie,
-                movies: false,
-                loggedIn
-             })
-        }
         res.render('list', {
             title: req.query.movie,
             movies: req.user.movies,
-            loggedIn
          })
     } catch (e) {
         res.status(500).send(e)
     }
 })
 
-router.delete('/movies/me/:id', auth, async (req, res) => {
+router.post('/movies/me/delete', auth, async (req, res) => {
     try{
-        const movie = await Movie.findOneAndDelete({_id: req.params.id, owner: req.user._id})
+        const movie = await Movie.findOneAndDelete({_id: req.body.id, owner: req.user._id})
         if (!movie) {
-            return res.status(404).send({error:'Movie not found'})
+            return res.redirect('/movies?successToast=true&toastMessage=Movie deleted')
         }
-        res.send(movie)
+        res.redirect('/movies?successToast=true&toastMessage=Movie deleted')
     } catch(e){
-        res.status(400).send(e)
+        res.redirect('/movies?failureToast=true&toastMessage=Movie deletion failed')
+    }
+})
+
+router.get('/movies/share/:id', async (req, res) => {
+    try {
+        let movies = await Movie.find({ owner: req.params.id, public: true })
+        let user = await User.findById(req.params.id)
+        if (movies.length == 0) {
+            movies = false
+        }
+        res.render('shared', {
+            movies,
+            name: user.name
+        })
+    } catch (e) {
+        res.redirect('/')
     }
 })
 

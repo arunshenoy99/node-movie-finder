@@ -1,7 +1,4 @@
 $(document).ready(function () {
-    $('#mycarousel').carousel({
-      pause: false
-    })
     AOS.init()
     $('.spinner-wrapper').fadeOut(500)
     $('.toast').toast('show');
